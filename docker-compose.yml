@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  netguard-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./logs:/app/logs
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  netguard-dashboard:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      bash -c "pip install streamlit plotly pandas -q &&
+               streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0"
